@@ -1,4 +1,3 @@
-
 import React, { useState, useMemo } from 'react';
 import { 
   Select,
@@ -18,31 +17,36 @@ import {
 
 // Mock data - in a real app, this would come from your data store/API
 const mockEmployees = [
-  { id: '1', name: 'John Doe', projects: ['Project A', 'Project B'], skills: ['CanIF', 'CanNm', 'React'] },
-  { id: '2', name: 'Jane Smith', projects: ['Project B', 'Project C'], skills: ['LinIf', 'Python', 'Docker'] },
-  { id: '3', name: 'Mike Johnson', projects: ['Project A'], skills: ['CanIF', 'Java', 'Jenkins'] },
-  { id: '4', name: 'Sarah Wilson', projects: ['Project C', 'Project D'], skills: ['EthIf', 'JavaScript', 'Kubernetes'] },
+  { id: '1', name: 'John Doe', projects: ['Project A', 'Project B'], skills: ['CanIF', 'CanNm', 'React'], utilization: 100 },
+  { id: '2', name: 'Jane Smith', projects: ['Project B', 'Project C'], skills: ['LinIf', 'Python', 'Docker'], utilization: 80 },
+  { id: '3', name: 'Mike Johnson', projects: ['Project A'], skills: ['CanIF', 'Java', 'Jenkins'], utilization: 60 },
+  { id: '4', name: 'Sarah Wilson', projects: ['Project C', 'Project D'], skills: ['EthIf', 'JavaScript', 'Kubernetes'], utilization: 100 },
+  { id: '5', name: 'David Brown', projects: ['Project A', 'Project D'], skills: ['CanIF', 'React', 'Docker'], utilization: 40 },
+  { id: '6', name: 'Lisa Garcia', projects: ['Project B'], skills: ['LinIf', 'Python', 'Jenkins'], utilization: 80 },
 ];
 
 const mockProjects = [
-  { id: 'proj1', name: 'Project A', employees: ['John Doe', 'Mike Johnson'], skills: ['CanIF', 'CanNm', 'React', 'Java'] },
-  { id: 'proj2', name: 'Project B', employees: ['John Doe', 'Jane Smith'], skills: ['CanIF', 'LinIf', 'React', 'Python'] },
+  { id: 'proj1', name: 'Project A', employees: ['John Doe', 'Mike Johnson', 'David Brown'], skills: ['CanIF', 'CanNm', 'React', 'Java', 'Docker'] },
+  { id: 'proj2', name: 'Project B', employees: ['John Doe', 'Jane Smith', 'Lisa Garcia'], skills: ['CanIF', 'LinIf', 'React', 'Python', 'Docker', 'Jenkins'] },
   { id: 'proj3', name: 'Project C', employees: ['Jane Smith', 'Sarah Wilson'], skills: ['LinIf', 'EthIf', 'Python', 'JavaScript'] },
-  { id: 'proj4', name: 'Project D', employees: ['Sarah Wilson'], skills: ['EthIf', 'JavaScript', 'Kubernetes'] },
+  { id: 'proj4', name: 'Project D', employees: ['Sarah Wilson', 'David Brown'], skills: ['EthIf', 'JavaScript', 'Kubernetes', 'CanIF', 'React', 'Docker'] },
 ];
 
 const allSkills = ['CanIF', 'CanNm', 'LinIf', 'EthIf', 'React', 'Python', 'Java', 'JavaScript', 'Docker', 'Jenkins', 'Kubernetes'];
+const utilizationOptions = [20, 40, 60, 80, 100];
 
 const Dashboard = () => {
   const [selectedEmployee, setSelectedEmployee] = useState('all');
   const [selectedProject, setSelectedProject] = useState('all');
   const [selectedSkill, setSelectedSkill] = useState('all');
+  const [selectedUtilization, setSelectedUtilization] = useState('all');
 
   // Dynamic filtering logic
   const filteredData = useMemo(() => {
     let employees = [...mockEmployees];
     let projects = [...mockProjects];
     let skills = [...allSkills];
+    let utilizations = [...utilizationOptions];
 
     // Filter based on selected employee
     if (selectedEmployee !== 'all') {
@@ -50,6 +54,7 @@ const Dashboard = () => {
       if (employee) {
         projects = projects.filter(proj => employee.projects.includes(proj.name));
         skills = employee.skills;
+        utilizations = [employee.utilization];
       }
     }
 
@@ -59,6 +64,7 @@ const Dashboard = () => {
       if (project) {
         employees = employees.filter(emp => project.employees.includes(emp.name));
         skills = project.skills;
+        utilizations = [...new Set(employees.map(emp => emp.utilization))].sort((a, b) => a - b);
       }
     }
 
@@ -66,10 +72,24 @@ const Dashboard = () => {
     if (selectedSkill !== 'all') {
       employees = employees.filter(emp => emp.skills.includes(selectedSkill));
       projects = projects.filter(proj => proj.skills.includes(selectedSkill));
+      utilizations = [...new Set(employees.map(emp => emp.utilization))].sort((a, b) => a - b);
     }
 
-    return { employees, projects, skills };
-  }, [selectedEmployee, selectedProject, selectedSkill]);
+    // Filter based on selected utilization
+    if (selectedUtilization !== 'all') {
+      const utilizationValue = parseInt(selectedUtilization);
+      employees = employees.filter(emp => emp.utilization === utilizationValue);
+      projects = projects.filter(proj => 
+        proj.employees.some(empName => 
+          employees.find(emp => emp.name === empName && emp.utilization === utilizationValue)
+        )
+      );
+      const filteredEmployeeSkills = employees.flatMap(emp => emp.skills);
+      skills = skills.filter(skill => filteredEmployeeSkills.includes(skill));
+    }
+
+    return { employees, projects, skills, utilizations };
+  }, [selectedEmployee, selectedProject, selectedSkill, selectedUtilization]);
 
   // Get table data based on current filters
   const tableData = useMemo(() => {
@@ -88,7 +108,8 @@ const Dashboard = () => {
           project: 'No matching projects',
           skills: employee.skills.filter(skill => 
             selectedSkill === 'all' || skill === selectedSkill
-          ).join(', ') || 'No matching skills'
+          ).join(', ') || 'No matching skills',
+          utilization: `${employee.utilization}%`
         });
       } else {
         employeeProjects.forEach(project => {
@@ -98,7 +119,8 @@ const Dashboard = () => {
             skills: employee.skills.filter(skill => 
               project.skills.includes(skill) && 
               (selectedSkill === 'all' || skill === selectedSkill)
-            ).join(', ') || 'No matching skills'
+            ).join(', ') || 'No matching skills',
+            utilization: `${employee.utilization}%`
           });
         });
       }
@@ -112,6 +134,7 @@ const Dashboard = () => {
     if (value !== 'all') {
       setSelectedProject('all');
       setSelectedSkill('all');
+      setSelectedUtilization('all');
     }
   };
 
@@ -120,6 +143,7 @@ const Dashboard = () => {
     if (value !== 'all') {
       setSelectedEmployee('all');
       setSelectedSkill('all');
+      setSelectedUtilization('all');
     }
   };
 
@@ -128,6 +152,16 @@ const Dashboard = () => {
     if (value !== 'all') {
       setSelectedEmployee('all');
       setSelectedProject('all');
+      setSelectedUtilization('all');
+    }
+  };
+
+  const handleUtilizationChange = (value: string) => {
+    setSelectedUtilization(value);
+    if (value !== 'all') {
+      setSelectedEmployee('all');
+      setSelectedProject('all');
+      setSelectedSkill('all');
     }
   };
 
@@ -180,7 +214,7 @@ const Dashboard = () => {
         {/* Filter Section */}
         <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200 mb-6">
           <h2 className="text-lg font-semibold text-gray-900 mb-4">Filter Dashboard</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
             {/* Employee Filter */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Employee</label>
@@ -234,6 +268,24 @@ const Dashboard = () => {
                 </SelectContent>
               </Select>
             </div>
+
+            {/* Utilization Filter */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Utilization</label>
+              <Select value={selectedUtilization} onValueChange={handleUtilizationChange}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select Utilization" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Utilizations</SelectItem>
+                  {filteredData.utilizations.map((utilization) => (
+                    <SelectItem key={utilization} value={utilization.toString()}>
+                      {utilization}%
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
           </div>
 
           {/* Results Table */}
@@ -244,6 +296,7 @@ const Dashboard = () => {
                   <TableHead className="font-semibold text-gray-900">Employee</TableHead>
                   <TableHead className="font-semibold text-gray-900">Project</TableHead>
                   <TableHead className="font-semibold text-gray-900">Skills</TableHead>
+                  <TableHead className="font-semibold text-gray-900">Utilization</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -255,11 +308,12 @@ const Dashboard = () => {
                       <TableCell className="max-w-xs truncate" title={row.skills}>
                         {row.skills}
                       </TableCell>
+                      <TableCell>{row.utilization}</TableCell>
                     </TableRow>
                   ))
                 ) : (
                   <TableRow>
-                    <TableCell colSpan={3} className="text-center py-8 text-gray-500">
+                    <TableCell colSpan={4} className="text-center py-8 text-gray-500">
                       No matching records found
                     </TableCell>
                   </TableRow>
