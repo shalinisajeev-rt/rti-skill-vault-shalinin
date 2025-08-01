@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -220,19 +221,66 @@ const Index = () => {
         onSearchChange={setSearchTerm}
       />
       
-      <div className="max-w-7xl mx-auto p-6">
+      <div className="max-w-[95vw] mx-auto p-6">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-9 mb-6">
-            <TabsTrigger value="autosar-classic" className="text-sm">Autosar Classic</TabsTrigger>
-            <TabsTrigger value="cicd" className="text-sm">CICD</TabsTrigger>
-            <TabsTrigger value="programming-language" className="text-sm">Programming Language</TabsTrigger>
-            <TabsTrigger value="autosar-adaptive" className="text-sm">Autosar Adaptive</TabsTrigger>
-            <TabsTrigger value="requirement-engineering" className="text-sm">Requirement Engineering</TabsTrigger>
-            <TabsTrigger value="functional-safety" className="text-sm">Functional Safety</TabsTrigger>
-            <TabsTrigger value="process" className="text-sm">Process</TabsTrigger>
-            <TabsTrigger value="software-architecture" className="text-sm">Software Architecture</TabsTrigger>
-            <TabsTrigger value="testing" className="text-sm">Testing</TabsTrigger>
-          </TabsList>
+          <div className="mb-6 bg-white rounded-lg shadow-sm border border-gray-200 p-1">
+            <TabsList className="w-full h-auto bg-transparent p-0 flex flex-wrap gap-1">
+              <TabsTrigger 
+                value="autosar-classic" 
+                className="flex-1 min-w-[140px] text-xs font-medium px-3 py-2 rounded-md data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700 data-[state=active]:border-blue-200 data-[state=active]:shadow-sm hover:bg-gray-50 transition-all"
+              >
+                Autosar Classic
+              </TabsTrigger>
+              <TabsTrigger 
+                value="cicd" 
+                className="flex-1 min-w-[100px] text-xs font-medium px-3 py-2 rounded-md data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700 data-[state=active]:border-blue-200 data-[state=active]:shadow-sm hover:bg-gray-50 transition-all"
+              >
+                CICD
+              </TabsTrigger>
+              <TabsTrigger 
+                value="programming-language" 
+                className="flex-1 min-w-[140px] text-xs font-medium px-3 py-2 rounded-md data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700 data-[state=active]:border-blue-200 data-[state=active]:shadow-sm hover:bg-gray-50 transition-all"
+              >
+                Programming Language
+              </TabsTrigger>
+              <TabsTrigger 
+                value="autosar-adaptive" 
+                className="flex-1 min-w-[140px] text-xs font-medium px-3 py-2 rounded-md data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700 data-[state=active]:border-blue-200 data-[state=active]:shadow-sm hover:bg-gray-50 transition-all"
+              >
+                Autosar Adaptive
+              </TabsTrigger>
+              <TabsTrigger 
+                value="requirement-engineering" 
+                className="flex-1 min-w-[150px] text-xs font-medium px-3 py-2 rounded-md data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700 data-[state=active]:border-blue-200 data-[state=active]:shadow-sm hover:bg-gray-50 transition-all"
+              >
+                Requirement Engineering
+              </TabsTrigger>
+              <TabsTrigger 
+                value="functional-safety" 
+                className="flex-1 min-w-[130px] text-xs font-medium px-3 py-2 rounded-md data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700 data-[state=active]:border-blue-200 data-[state=active]:shadow-sm hover:bg-gray-50 transition-all"
+              >
+                Functional Safety
+              </TabsTrigger>
+              <TabsTrigger 
+                value="process" 
+                className="flex-1 min-w-[100px] text-xs font-medium px-3 py-2 rounded-md data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700 data-[state=active]:border-blue-200 data-[state=active]:shadow-sm hover:bg-gray-50 transition-all"
+              >
+                Process
+              </TabsTrigger>
+              <TabsTrigger 
+                value="software-architecture" 
+                className="flex-1 min-w-[150px] text-xs font-medium px-3 py-2 rounded-md data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700 data-[state=active]:border-blue-200 data-[state=active]:shadow-sm hover:bg-gray-50 transition-all"
+              >
+                Software Architecture
+              </TabsTrigger>
+              <TabsTrigger 
+                value="testing" 
+                className="flex-1 min-w-[100px] text-xs font-medium px-3 py-2 rounded-md data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700 data-[state=active]:border-blue-200 data-[state=active]:shadow-sm hover:bg-gray-50 transition-all"
+              >
+                Testing
+              </TabsTrigger>
+            </TabsList>
+          </div>
 
           {Object.keys(SKILL_CATEGORIES).map((tabKey) => (
             <TabsContent key={tabKey} value={tabKey} className="space-y-6">
