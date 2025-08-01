@@ -3,6 +3,7 @@ import { useToast } from '@/hooks/use-toast';
 import SkillMatrixHeader from '@/components/SkillMatrixHeader';
 import EmployeeSkillsTable, { Employee } from '@/components/EmployeeSkillsTable';
 import EmployeeFormDialog from '@/components/EmployeeFormDialog';
+import ExcelImportDialog from '@/components/ExcelImportDialog';
 
 // Skills based on the provided requirements
 const DEFAULT_SKILLS = [
@@ -71,6 +72,7 @@ const Index = () => {
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isExcelImportOpen, setIsExcelImportOpen] = useState(false);
   const [editingEmployee, setEditingEmployee] = useState<Employee | null>(null);
   const { toast } = useToast();
 
@@ -81,6 +83,18 @@ const Index = () => {
   const handleAddEmployee = () => {
     setEditingEmployee(null);
     setIsDialogOpen(true);
+  };
+
+  const handleImportExcel = () => {
+    setIsExcelImportOpen(true);
+  };
+
+  const handleExcelImport = (importedEmployees: Employee[]) => {
+    setEmployees(prev => [...prev, ...importedEmployees]);
+    toast({
+      title: "Excel Import Successful",
+      description: `Successfully imported ${importedEmployees.length} employee(s) from Excel file.`,
+    });
   };
 
   const handleEditEmployee = (employee: Employee) => {
@@ -152,6 +166,7 @@ const Index = () => {
     <div className="min-h-screen bg-gray-50">
       <SkillMatrixHeader
         onAddEmployee={handleAddEmployee}
+        onImportExcel={handleImportExcel}
         searchTerm={searchTerm}
         onSearchChange={setSearchTerm}
       />
@@ -200,6 +215,13 @@ const Index = () => {
         onClose={() => setIsDialogOpen(false)}
         onSave={handleSaveEmployee}
         employee={editingEmployee}
+        skills={DEFAULT_SKILLS}
+      />
+
+      <ExcelImportDialog
+        isOpen={isExcelImportOpen}
+        onClose={() => setIsExcelImportOpen(false)}
+        onImport={handleExcelImport}
         skills={DEFAULT_SKILLS}
       />
     </div>
