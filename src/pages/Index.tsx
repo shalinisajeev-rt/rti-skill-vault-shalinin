@@ -1,32 +1,70 @@
-
 import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import SkillMatrixHeader from '@/components/SkillMatrixHeader';
 import EmployeeSkillsTable, { Employee } from '@/components/EmployeeSkillsTable';
 import EmployeeFormDialog from '@/components/EmployeeFormDialog';
 
-// Default skills based on the Excel sheet categories
+// Skills based on the provided requirements
 const DEFAULT_SKILLS = [
-  'HTML5',
-  'CSS3',
-  'JavaScript',
-  'TypeScript',
-  'React.js',
-  'Node.js',
-  'Python',
-  'Java',
-  'SQL',
-  'MongoDB',
-  'Git',
-  'AWS',
-  'Docker',
-  'Testing',
-  'Communication',
-  'Leadership',
-  'Problem Solving',
-  'Teamwork',
-  'Project Management',
-  'Analytical Thinking'
+  // CAN / FD
+  'CanIF', 'CanNm', 'CanSm', 'CanTp', 'CanTsync', 'CanXCP', 'J1939Nm', 'J1939Rm', 'J1939Tp',
+  
+  // LIN
+  'LinIf', 'LinNm', 'LinSm', 'LinTp', 'LinXCP',
+  
+  // ETH
+  'DNS', 'DoIP', 'EthIf', 'EthSm', 'EthTsync', 'EthXCP', 'Sd', 'SoAD', 'Tcp/IP', 'UdpNm',
+  
+  // Fr
+  'FrArTp', 'FrIf', 'FrNm', 'FrSm', 'FrTp', 'FrTsync', 'FrXcp',
+  
+  // COM
+  'Com', 'E2EXf', 'LdCom', 'SecOC', 'SomeIPXf', 'ComXf', 'IPDUM', 'PDUR', 'SomeIpTp',
+  
+  // Diag
+  'UDS', 'KWP', 'DCM', 'DEM', 'FiM', 'DLT', 'DET', 'J1939DCM',
+  
+  // NVM/Mem
+  'Fls', 'EA', 'NvM',
+  
+  // CDD
+  'Std CDD', 'Custom Cdd', 'FEE', 'EEP', 'FlsTst', 'RamTst',
+  
+  // RTE
+  'RTE',
+  
+  // MCAL
+  'MCU', 'WDG', 'Gpt', 'ADC', 'CAN', 'Fr', 'LIN', 'Eth', 'SPI', 'DIO', 'ICU', 'Port', 'PWM', 'Crpto (HW)',
+  
+  // ASW
+  'ASW',
+  
+  // Crypto
+  'KeyM', 'Csm', 'CryIF', 'Crytpo', 'IdsM',
+  
+  // OS (OSEK)
+  'Single Core', 'Multi Core',
+  
+  // RTM
+  'RTM',
+  
+  // IoHwAb
+  'IoHwAb',
+  
+  // HSM
+  'HSM',
+  
+  // SHE
+  'SHE',
+  
+  // Crypto Lib
+  'Crypto Lib',
+  
+  // Bootloader
+  'FBL', 'BM', 'FBL Updater', 'Memory Partitioning', 'Secure Boot',
+  
+  // Stack Vendor
+  'Hexview', 'vFlash', 'Vector', 'Electrobit', 'KSAR', 'ETAS'
 ];
 
 const Index = () => {
