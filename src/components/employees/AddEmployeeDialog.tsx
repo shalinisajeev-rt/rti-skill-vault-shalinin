@@ -1,4 +1,5 @@
-import { useState } from "react";
+
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -59,6 +60,20 @@ const formSchema = z.object({
 
 type FormData = z.infer<typeof formSchema>;
 
+interface Employee {
+  id: string;
+  employee_id: string;
+  employee_name: string;
+  date_of_joining: string;
+  email: string;
+  mobile_number: string;
+  team_project_lead?: string;
+  project?: string;
+  technology?: string;
+  skill?: string;
+  comments?: string;
+}
+
 const technologies = [
   "React",
   "Node.js",
@@ -87,10 +102,19 @@ interface AddEmployeeDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onAddEmployee: (employeeData: FormData) => void;
+  onUpdateEmployee: (employeeId: string, employeeData: FormData) => void;
+  editEmployee?: Employee | null;
 }
 
-export function AddEmployeeDialog({ open, onOpenChange, onAddEmployee }: AddEmployeeDialogProps) {
+export function AddEmployeeDialog({ 
+  open, 
+  onOpenChange, 
+  onAddEmployee, 
+  onUpdateEmployee,
+  editEmployee 
+}: AddEmployeeDialogProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const isEditMode = !!editEmployee;
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -107,15 +131,48 @@ export function AddEmployeeDialog({ open, onOpenChange, onAddEmployee }: AddEmpl
     },
   });
 
+  // Populate form when editing
+  useEffect(() => {
+    if (editEmployee && open) {
+      form.reset({
+        employeeId: editEmployee.employee_id,
+        employeeName: editEmployee.employee_name,
+        dateOfJoining: new Date(editEmployee.date_of_joining),
+        email: editEmployee.email,
+        mobileNumber: editEmployee.mobile_number,
+        teamProjectLead: editEmployee.team_project_lead || "",
+        project: editEmployee.project || "",
+        technology: editEmployee.technology || "",
+        skill: editEmployee.skill || "",
+        comments: editEmployee.comments || "",
+      });
+    } else if (!editEmployee && open) {
+      form.reset({
+        employeeId: "",
+        employeeName: "",
+        email: "",
+        mobileNumber: "",
+        teamProjectLead: "",
+        project: "",
+        technology: "",
+        skill: "",
+        comments: "",
+      });
+    }
+  }, [editEmployee, open, form]);
+
   const onSubmit = async (data: FormData) => {
     setIsSubmitting(true);
     try {
       console.log("Employee data:", data);
-      onAddEmployee(data);
+      if (isEditMode && editEmployee) {
+        onUpdateEmployee(editEmployee.id, data);
+      } else {
+        onAddEmployee(data);
+      }
       onOpenChange(false);
-      form.reset();
     } catch (error) {
-      console.error("Error adding employee:", error);
+      console.error("Error submitting employee:", error);
     } finally {
       setIsSubmitting(false);
     }
@@ -131,7 +188,7 @@ export function AddEmployeeDialog({ open, onOpenChange, onAddEmployee }: AddEmpl
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center justify-between">
-            Add New Employee
+            {isEditMode ? 'Edit Employee' : 'Add New Employee'}
             <Button
               variant="ghost"
               size="icon"
@@ -285,7 +342,7 @@ export function AddEmployeeDialog({ open, onOpenChange, onAddEmployee }: AddEmpl
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Technology</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <Select onValueChange={field.onChange} value={field.value}>
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="Select technology" />
@@ -310,7 +367,7 @@ export function AddEmployeeDialog({ open, onOpenChange, onAddEmployee }: AddEmpl
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Skill</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <Select onValueChange={field.onChange} value={field.value}>
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="Select skill" />
@@ -354,7 +411,7 @@ export function AddEmployeeDialog({ open, onOpenChange, onAddEmployee }: AddEmpl
                 Cancel
               </Button>
               <Button type="submit" disabled={isSubmitting}>
-                {isSubmitting ? "Submitting..." : "Submit"}
+                {isSubmitting ? "Submitting..." : (isEditMode ? "Update" : "Submit")}
               </Button>
             </div>
           </form>

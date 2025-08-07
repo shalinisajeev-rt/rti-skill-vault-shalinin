@@ -1,9 +1,11 @@
+
 import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Search, Plus } from "lucide-react";
 import { AddEmployeeDialog } from "@/components/employees/AddEmployeeDialog";
+import { DeleteEmployeeDialog } from "@/components/employees/DeleteEmployeeDialog";
 import { EmployeeTable } from "@/components/employees/EmployeeTable";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -26,7 +28,12 @@ const EmployeeDirectory = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [editEmployee, setEditEmployee] = useState<Employee | null>(null);
+  const [employeeToDelete, setEmployeeToDelete] = useState<Employee | null>(null);
+  const [selectedEmployees, setSelectedEmployees] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isDeleting, setIsDeleting] = useState(false);
   const { toast } = useToast();
 
   // Fetch employees from Supabase
@@ -130,7 +137,6 @@ const EmployeeDirectory = () => {
         description: "Employee added successfully",
       });
 
-      // Refresh the employee list
       fetchEmployees();
     } catch (error) {
       console.error('Error:', error);
@@ -139,6 +145,125 @@ const EmployeeDirectory = () => {
         description: "An unexpected error occurred",
         variant: "destructive",
       });
+    }
+  };
+
+  const handleUpdateEmployee = async (employeeId: string, updatedEmployeeData: any) => {
+    try {
+      const { error } = await supabase
+        .from('employees')
+        .update({
+          employee_id: updatedEmployeeData.employeeId,
+          employee_name: updatedEmployeeData.employeeName,
+          date_of_joining: updatedEmployeeData.dateOfJoining.toISOString().split('T')[0],
+          email: updatedEmployeeData.email,
+          mobile_number: updatedEmployeeData.mobileNumber,
+          team_project_lead: updatedEmployeeData.teamProjectLead || null,
+          project: updatedEmployeeData.project || null,
+          technology: updatedEmployeeData.technology || null,
+          skill: updatedEmployeeData.skill || null,
+          comments: updatedEmployeeData.comments || null,
+        })
+        .eq('id', employeeId);
+
+      if (error) {
+        console.error('Error updating employee:', error);
+        toast({
+          title: "Error",
+          description: `Failed to update employee: ${error.message}`,
+          variant: "destructive",
+        });
+        return;
+      }
+
+      toast({
+        title: "Success",
+        description: "Employee updated successfully",
+      });
+
+      setEditEmployee(null);
+      fetchEmployees();
+    } catch (error) {
+      console.error('Error:', error);
+      toast({
+        title: "Error",
+        description: "An unexpected error occurred",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleDeleteEmployee = async () => {
+    if (!employeeToDelete) return;
+
+    try {
+      setIsDeleting(true);
+      const { error } = await supabase
+        .from('employees')
+        .delete()
+        .eq('id', employeeToDelete.id);
+
+      if (error) {
+        console.error('Error deleting employee:', error);
+        toast({
+          title: "Error",
+          description: `Failed to delete employee: ${error.message}`,
+          variant: "destructive",
+        });
+        return;
+      }
+
+      toast({
+        title: "Success",
+        description: "Employee deleted successfully",
+      });
+
+      setEmployeeToDelete(null);
+      setIsDeleteDialogOpen(false);
+      setSelectedEmployees(prev => prev.filter(id => id !== employeeToDelete.id));
+      fetchEmployees();
+    } catch (error) {
+      console.error('Error:', error);
+      toast({
+        title: "Error",
+        description: "An unexpected error occurred",
+        variant: "destructive",
+      });
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  const handleEditEmployee = (employee: Employee) => {
+    setEditEmployee(employee);
+    setIsAddDialogOpen(true);
+  };
+
+  const handleDeleteEmployeeClick = (employee: Employee) => {
+    setEmployeeToDelete(employee);
+    setIsDeleteDialogOpen(true);
+  };
+
+  const handleEmployeeSelect = (employeeId: string) => {
+    setSelectedEmployees(prev => 
+      prev.includes(employeeId) 
+        ? prev.filter(id => id !== employeeId)
+        : [...prev, employeeId]
+    );
+  };
+
+  const handleSelectAll = () => {
+    if (selectedEmployees.length === filteredEmployees.length) {
+      setSelectedEmployees([]);
+    } else {
+      setSelectedEmployees(filteredEmployees.map(emp => emp.id));
+    }
+  };
+
+  const handleDialogClose = (open: boolean) => {
+    setIsAddDialogOpen(open);
+    if (!open) {
+      setEditEmployee(null);
     }
   };
 
@@ -157,7 +282,7 @@ const EmployeeDirectory = () => {
         </Button>
       </div>
 
-      <div className="flex items-center space-x-2">
+      <div className="flex items-center justify-between">
         <div className="relative flex-1 max-w-sm">
           <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
           <Input
@@ -167,6 +292,13 @@ const EmployeeDirectory = () => {
             className="pl-8"
           />
         </div>
+        {selectedEmployees.length > 0 && (
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-muted-foreground">
+              {selectedEmployees.length} selected
+            </span>
+          </div>
+        )}
       </div>
 
       <Card>
@@ -177,14 +309,29 @@ const EmployeeDirectory = () => {
           <EmployeeTable 
             employees={filteredEmployees} 
             isLoading={isLoading}
+            selectedEmployees={selectedEmployees}
+            onEmployeeSelect={handleEmployeeSelect}
+            onSelectAll={handleSelectAll}
+            onEditEmployee={handleEditEmployee}
+            onDeleteEmployee={handleDeleteEmployeeClick}
           />
         </CardContent>
       </Card>
 
       <AddEmployeeDialog 
         open={isAddDialogOpen} 
-        onOpenChange={setIsAddDialogOpen}
+        onOpenChange={handleDialogClose}
         onAddEmployee={handleAddEmployee}
+        onUpdateEmployee={handleUpdateEmployee}
+        editEmployee={editEmployee}
+      />
+
+      <DeleteEmployeeDialog
+        employee={employeeToDelete}
+        open={isDeleteDialogOpen}
+        onOpenChange={setIsDeleteDialogOpen}
+        onConfirm={handleDeleteEmployee}
+        isDeleting={isDeleting}
       />
     </div>
   );

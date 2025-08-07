@@ -9,7 +9,10 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { format } from "date-fns";
+import { Edit, Trash2 } from "lucide-react";
 
 interface Employee {
   id: string;
@@ -28,9 +31,22 @@ interface Employee {
 interface EmployeeTableProps {
   employees: Employee[];
   isLoading: boolean;
+  selectedEmployees: string[];
+  onEmployeeSelect: (employeeId: string) => void;
+  onSelectAll: () => void;
+  onEditEmployee: (employee: Employee) => void;
+  onDeleteEmployee: (employee: Employee) => void;
 }
 
-export const EmployeeTable = ({ employees, isLoading }: EmployeeTableProps) => {
+export const EmployeeTable = ({ 
+  employees, 
+  isLoading, 
+  selectedEmployees,
+  onEmployeeSelect,
+  onSelectAll,
+  onEditEmployee,
+  onDeleteEmployee
+}: EmployeeTableProps) => {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-8">
@@ -47,11 +63,23 @@ export const EmployeeTable = ({ employees, isLoading }: EmployeeTableProps) => {
     );
   }
 
+  const isAllSelected = employees.length > 0 && selectedEmployees.length === employees.length;
+  const isSomeSelected = selectedEmployees.length > 0 && selectedEmployees.length < employees.length;
+
   return (
     <div className="rounded-md border">
       <Table>
         <TableHeader>
           <TableRow>
+            <TableHead className="w-12">
+              <Checkbox
+                checked={isAllSelected}
+                ref={(el) => {
+                  if (el) el.indeterminate = isSomeSelected;
+                }}
+                onCheckedChange={onSelectAll}
+              />
+            </TableHead>
             <TableHead>Employee ID</TableHead>
             <TableHead>Name</TableHead>
             <TableHead>Email</TableHead>
@@ -62,11 +90,18 @@ export const EmployeeTable = ({ employees, isLoading }: EmployeeTableProps) => {
             <TableHead>Technology</TableHead>
             <TableHead>Skills</TableHead>
             <TableHead>Comments</TableHead>
+            <TableHead className="w-32">Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {employees.map((employee) => (
             <TableRow key={employee.id}>
+              <TableCell>
+                <Checkbox
+                  checked={selectedEmployees.includes(employee.id)}
+                  onCheckedChange={() => onEmployeeSelect(employee.id)}
+                />
+              </TableCell>
               <TableCell className="font-medium">{employee.employee_id}</TableCell>
               <TableCell>{employee.employee_name}</TableCell>
               <TableCell>{employee.email}</TableCell>
@@ -98,6 +133,26 @@ export const EmployeeTable = ({ employees, isLoading }: EmployeeTableProps) => {
               </TableCell>
               <TableCell className="max-w-xs truncate">
                 {employee.comments || '-'}
+              </TableCell>
+              <TableCell>
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => onEditEmployee(employee)}
+                    className="h-8 w-8 p-0"
+                  >
+                    <Edit className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => onDeleteEmployee(employee)}
+                    className="h-8 w-8 p-0 text-destructive hover:text-destructive"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
               </TableCell>
             </TableRow>
           ))}
