@@ -1,40 +1,13 @@
-
-import React, { useState } from 'react';
-import { TabsContent } from '@/components/ui/tabs';
-import MainNavigation from '@/components/MainNavigation';
-import Dashboard from '@/components/Dashboard';
-import Employee from '@/components/Employee';
-import SkillSet from '@/components/SkillSet';
-import Projects from '@/components/Projects';
-import Settings from '@/components/Settings';
-import { Employee as EmployeeType } from '@/components/EmployeeSkillsTable';
+// Update this page (the content is just a fallback if you fail to update the page)
 
 const Index = () => {
-  const [employees, setEmployees] = useState<EmployeeType[]>([]);
-  const [activeMainTab, setActiveMainTab] = useState('dashboard');
-
   return (
-    <MainNavigation activeTab={activeMainTab} onTabChange={setActiveMainTab}>
-      <TabsContent value="dashboard">
-        <Dashboard />
-      </TabsContent>
-      
-      <TabsContent value="employee">
-        <Employee />
-      </TabsContent>
-      
-      <TabsContent value="skill-set">
-        <SkillSet employees={employees} setEmployees={setEmployees} />
-      </TabsContent>
-      
-      <TabsContent value="projects">
-        <Projects />
-      </TabsContent>
-      
-      <TabsContent value="settings">
-        <Settings />
-      </TabsContent>
-    </MainNavigation>
+    <div className="min-h-screen flex items-center justify-center bg-background">
+      <div className="text-center">
+        <h1 className="text-4xl font-bold mb-4">Welcome to Your Blank App</h1>
+        <p className="text-xl text-muted-foreground">Start building your amazing project here!</p>
+      </div>
+    </div>
   );
 };
 
