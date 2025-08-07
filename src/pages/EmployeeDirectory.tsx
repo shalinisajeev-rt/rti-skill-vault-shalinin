@@ -17,6 +17,7 @@ interface Employee {
   date_of_joining: string;
   email: string;
   mobile_number: string;
+  role?: string;
   team_project_lead?: string;
   project?: string;
   technology?: string;
@@ -101,7 +102,8 @@ const EmployeeDirectory = () => {
     employee.employee_id.toLowerCase().includes(searchTerm.toLowerCase()) ||
     employee.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
     (employee.skill && employee.skill.toLowerCase().includes(searchTerm.toLowerCase())) ||
-    (employee.technology && employee.technology.toLowerCase().includes(searchTerm.toLowerCase()))
+    (employee.technology && employee.technology.toLowerCase().includes(searchTerm.toLowerCase())) ||
+    (employee.role && employee.role.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
   const handleAddEmployee = async (newEmployeeData: any) => {
@@ -114,6 +116,7 @@ const EmployeeDirectory = () => {
           date_of_joining: newEmployeeData.dateOfJoining.toISOString().split('T')[0],
           email: newEmployeeData.email,
           mobile_number: newEmployeeData.mobileNumber,
+          role: newEmployeeData.role || null,
           team_project_lead: newEmployeeData.teamProjectLead || null,
           project: newEmployeeData.project || null,
           technology: newEmployeeData.technology || null,
@@ -158,6 +161,7 @@ const EmployeeDirectory = () => {
           date_of_joining: updatedEmployeeData.dateOfJoining.toISOString().split('T')[0],
           email: updatedEmployeeData.email,
           mobile_number: updatedEmployeeData.mobileNumber,
+          role: updatedEmployeeData.role || null,
           team_project_lead: updatedEmployeeData.teamProjectLead || null,
           project: updatedEmployeeData.project || null,
           technology: updatedEmployeeData.technology || null,

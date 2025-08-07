@@ -51,6 +51,7 @@ const formSchema = z.object({
   mobileNumber: z
     .string()
     .regex(/^\d{10}$/, "Mobile number must be exactly 10 digits"),
+  role: z.string().min(1, "Role is required"),
   teamProjectLead: z.string().optional(),
   project: z.string().optional(),
   technology: z.string().optional(),
@@ -67,6 +68,7 @@ interface Employee {
   date_of_joining: string;
   email: string;
   mobile_number: string;
+  role?: string;
   team_project_lead?: string;
   project?: string;
   technology?: string;
@@ -98,6 +100,11 @@ const skills = [
   "Business Analysis",
 ];
 
+const roles = [
+  "Project Lead",
+  "Team Member",
+];
+
 interface AddEmployeeDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -123,6 +130,7 @@ export function AddEmployeeDialog({
       employeeName: "",
       email: "",
       mobileNumber: "",
+      role: "",
       teamProjectLead: "",
       project: "",
       technology: "",
@@ -140,6 +148,7 @@ export function AddEmployeeDialog({
         dateOfJoining: new Date(editEmployee.date_of_joining),
         email: editEmployee.email,
         mobileNumber: editEmployee.mobile_number,
+        role: editEmployee.role || "",
         teamProjectLead: editEmployee.team_project_lead || "",
         project: editEmployee.project || "",
         technology: editEmployee.technology || "",
@@ -152,6 +161,7 @@ export function AddEmployeeDialog({
         employeeName: "",
         email: "",
         mobileNumber: "",
+        role: "",
         teamProjectLead: "",
         project: "",
         technology: "",
@@ -303,6 +313,31 @@ export function AddEmployeeDialog({
                         {...field} 
                       />
                     </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="role"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Role *</FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select role" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {roles.map((role) => (
+                          <SelectItem key={role} value={role}>
+                            {role}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                     <FormMessage />
                   </FormItem>
                 )}
