@@ -1,78 +1,146 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Search, Plus, Mail, Phone } from "lucide-react";
+import { Search, Plus } from "lucide-react";
 import { AddEmployeeDialog } from "@/components/employees/AddEmployeeDialog";
+import { EmployeeTable } from "@/components/employees/EmployeeTable";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
-// Mock data - will be replaced with Supabase data
-const initialMockEmployees = [
-  {
-    id: 1,
-    employeeId: "EMP001",
-    name: "John Doe",
-    position: "Senior Frontend Developer",
-    email: "john.doe@rti.com",
-    phone: "+1 (555) 123-4567",
-    department: "Engineering",
-    skills: ["React", "TypeScript", "Node.js"],
-    experience: "5 years",
-    dateOfJoining: "2019-01-15"
-  },
-  {
-    id: 2,
-    employeeId: "EMP002",
-    name: "Jane Smith",
-    position: "Product Manager",
-    email: "jane.smith@rti.com",
-    phone: "+1 (555) 234-5678",
-    department: "Product",
-    skills: ["Agile", "Scrum", "Analytics"],
-    experience: "7 years",
-    dateOfJoining: "2017-03-20"
-  },
-  {
-    id: 3,
-    employeeId: "EMP003",
-    name: "Mike Johnson",
-    position: "Backend Developer",
-    email: "mike.johnson@rti.com",
-    phone: "+1 (555) 345-6789",
-    department: "Engineering",
-    skills: ["Python", "PostgreSQL", "AWS"],
-    experience: "4 years",
-    dateOfJoining: "2020-06-10"
-  }
-];
+interface Employee {
+  id: string;
+  employee_id: string;
+  employee_name: string;
+  date_of_joining: string;
+  email: string;
+  mobile_number: string;
+  team_project_lead?: string;
+  project?: string;
+  technology?: string;
+  skill?: string;
+  comments?: string;
+}
 
 const EmployeeDirectory = () => {
   const [searchTerm, setSearchTerm] = useState("");
-  const [employees, setEmployees] = useState(initialMockEmployees);
+  const [employees, setEmployees] = useState<Employee[]>([]);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const { toast } = useToast();
+
+  // Fetch employees from Supabase
+  const fetchEmployees = async () => {
+    try {
+      setIsLoading(true);
+      const { data, error } = await supabase
+        .from('employees')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error('Error fetching employees:', error);
+        toast({
+          title: "Error",
+          description: "Failed to fetch employees",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      setEmployees(data || []);
+    } catch (error) {
+      console.error('Error:', error);
+      toast({
+        title: "Error",
+        description: "An unexpected error occurred",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Load employees on component mount
+  useEffect(() => {
+    fetchEmployees();
+  }, []);
+
+  // Set up realtime subscription
+  useEffect(() => {
+    const channel = supabase
+      .channel('employees-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'employees'
+        },
+        () => {
+          console.log('Employee data changed, refetching...');
+          fetchEmployees();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, []);
 
   const filteredEmployees = employees.filter(employee =>
-    employee.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    employee.position.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    employee.department.toLowerCase().includes(searchTerm.toLowerCase())
+    employee.employee_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    employee.employee_id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    employee.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (employee.skill && employee.skill.toLowerCase().includes(searchTerm.toLowerCase())) ||
+    (employee.technology && employee.technology.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
-  const handleAddEmployee = (newEmployeeData: any) => {
-    const newEmployee = {
-      id: employees.length + 1,
-      employeeId: newEmployeeData.employeeId,
-      name: newEmployeeData.employeeName,
-      position: newEmployeeData.skill || "Not specified",
-      email: newEmployeeData.email,
-      phone: newEmployeeData.mobileNumber,
-      department: "Not specified",
-      skills: newEmployeeData.technology ? [newEmployeeData.technology] : [],
-      experience: "Not specified",
-      dateOfJoining: newEmployeeData.dateOfJoining.toISOString().split('T')[0]
-    };
+  const handleAddEmployee = async (newEmployeeData: any) => {
+    try {
+      const { data, error } = await supabase
+        .from('employees')
+        .insert([{
+          employee_id: newEmployeeData.employeeId,
+          employee_name: newEmployeeData.employeeName,
+          date_of_joining: newEmployeeData.dateOfJoining.toISOString().split('T')[0],
+          email: newEmployeeData.email,
+          mobile_number: newEmployeeData.mobileNumber,
+          team_project_lead: newEmployeeData.teamProjectLead || null,
+          project: newEmployeeData.project || null,
+          technology: newEmployeeData.technology || null,
+          skill: newEmployeeData.skill || null,
+          comments: newEmployeeData.comments || null,
+        }])
+        .select();
 
-    setEmployees(prevEmployees => [...prevEmployees, newEmployee]);
+      if (error) {
+        console.error('Error adding employee:', error);
+        toast({
+          title: "Error",
+          description: `Failed to add employee: ${error.message}`,
+          variant: "destructive",
+        });
+        return;
+      }
+
+      toast({
+        title: "Success",
+        description: "Employee added successfully",
+      });
+
+      // Refresh the employee list
+      fetchEmployees();
+    } catch (error) {
+      console.error('Error:', error);
+      toast({
+        title: "Error",
+        description: "An unexpected error occurred",
+        variant: "destructive",
+      });
+    }
   };
 
   return (
@@ -102,45 +170,17 @@ const EmployeeDirectory = () => {
         </div>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {filteredEmployees.map((employee) => (
-          <Card key={employee.id} className="hover:shadow-md transition-shadow">
-            <CardHeader>
-              <CardTitle className="text-lg">{employee.name}</CardTitle>
-              <p className="text-sm text-muted-foreground">{employee.position}</p>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <div className="flex items-center text-sm">
-                  <Mail className="mr-2 h-4 w-4" />
-                  {employee.email}
-                </div>
-                <div className="flex items-center text-sm">
-                  <Phone className="mr-2 h-4 w-4" />
-                  {employee.phone}
-                </div>
-              </div>
-              
-              <div>
-                <p className="text-sm font-medium mb-2">Department: {employee.department}</p>
-                <p className="text-sm text-muted-foreground mb-2">Experience: {employee.experience}</p>
-                <p className="text-sm text-muted-foreground mb-2">DOJ: {employee.dateOfJoining}</p>
-              </div>
-
-              <div>
-                <p className="text-sm font-medium mb-2">Skills:</p>
-                <div className="flex flex-wrap gap-1">
-                  {employee.skills.map((skill) => (
-                    <Badge key={skill} variant="secondary" className="text-xs">
-                      {skill}
-                    </Badge>
-                  ))}
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+      <Card>
+        <CardHeader>
+          <CardTitle>Employees ({filteredEmployees.length})</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <EmployeeTable 
+            employees={filteredEmployees} 
+            isLoading={isLoading}
+          />
+        </CardContent>
+      </Card>
 
       <AddEmployeeDialog 
         open={isAddDialogOpen} 
