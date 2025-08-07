@@ -21,6 +21,7 @@ interface Employee {
   date_of_joining: string;
   email: string;
   mobile_number: string;
+  role?: string;
   team_project_lead?: string;
   project?: string;
   technology?: string;
@@ -75,7 +76,10 @@ export const EmployeeTable = ({
               <Checkbox
                 checked={isAllSelected}
                 ref={(el) => {
-                  if (el) el.indeterminate = isSomeSelected;
+                  if (el) {
+                    const input = el.querySelector('input') as HTMLInputElement;
+                    if (input) input.indeterminate = isSomeSelected;
+                  }
                 }}
                 onCheckedChange={onSelectAll}
               />
@@ -84,6 +88,7 @@ export const EmployeeTable = ({
             <TableHead>Name</TableHead>
             <TableHead>Email</TableHead>
             <TableHead>Mobile</TableHead>
+            <TableHead>Role</TableHead>
             <TableHead>Date of Joining</TableHead>
             <TableHead>Team Lead</TableHead>
             <TableHead>Project</TableHead>
@@ -106,6 +111,13 @@ export const EmployeeTable = ({
               <TableCell>{employee.employee_name}</TableCell>
               <TableCell>{employee.email}</TableCell>
               <TableCell>{employee.mobile_number}</TableCell>
+              <TableCell>
+                {employee.role ? (
+                  <Badge variant="outline">{employee.role}</Badge>
+                ) : (
+                  '-'
+                )}
+              </TableCell>
               <TableCell>
                 {format(new Date(employee.date_of_joining), 'MMM dd, yyyy')}
               </TableCell>
