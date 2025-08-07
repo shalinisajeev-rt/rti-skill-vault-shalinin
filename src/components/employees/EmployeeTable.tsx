@@ -1,4 +1,5 @@
 
+import React from "react";
 import {
   Table,
   TableBody,
@@ -8,7 +9,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Mail, Phone, Calendar, User, Briefcase, Code, Trophy } from "lucide-react";
+import { format } from "date-fns";
 
 interface Employee {
   id: string;
@@ -29,15 +30,7 @@ interface EmployeeTableProps {
   isLoading: boolean;
 }
 
-export function EmployeeTable({ employees, isLoading }: EmployeeTableProps) {
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
-    });
-  };
-
+export const EmployeeTable = ({ employees, isLoading }: EmployeeTableProps) => {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-8">
@@ -49,13 +42,7 @@ export function EmployeeTable({ employees, isLoading }: EmployeeTableProps) {
   if (employees.length === 0) {
     return (
       <div className="flex items-center justify-center py-8">
-        <div className="text-center">
-          <User className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
-          <h3 className="text-lg font-semibold text-muted-foreground mb-2">No Employees Found</h3>
-          <p className="text-sm text-muted-foreground">
-            Get started by adding your first employee.
-          </p>
-        </div>
+        <div className="text-muted-foreground">No employees found.</div>
       </div>
     );
   }
@@ -65,97 +52,52 @@ export function EmployeeTable({ employees, isLoading }: EmployeeTableProps) {
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead className="w-[120px]">Employee ID</TableHead>
+            <TableHead>Employee ID</TableHead>
             <TableHead>Name</TableHead>
             <TableHead>Email</TableHead>
-            <TableHead>Phone</TableHead>
+            <TableHead>Mobile</TableHead>
             <TableHead>Date of Joining</TableHead>
-            <TableHead>Project Lead</TableHead>
+            <TableHead>Team Lead</TableHead>
             <TableHead>Project</TableHead>
             <TableHead>Technology</TableHead>
-            <TableHead>Skill</TableHead>
-            <TableHead className="max-w-[200px]">Comments</TableHead>
+            <TableHead>Skills</TableHead>
+            <TableHead>Comments</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {employees.map((employee) => (
             <TableRow key={employee.id}>
-              <TableCell className="font-medium">
-                <Badge variant="outline">{employee.employee_id}</Badge>
-              </TableCell>
+              <TableCell className="font-medium">{employee.employee_id}</TableCell>
+              <TableCell>{employee.employee_name}</TableCell>
+              <TableCell>{employee.email}</TableCell>
+              <TableCell>{employee.mobile_number}</TableCell>
               <TableCell>
-                <div className="font-medium">{employee.employee_name}</div>
+                {format(new Date(employee.date_of_joining), 'MMM dd, yyyy')}
               </TableCell>
-              <TableCell>
-                <div className="flex items-center text-sm">
-                  <Mail className="mr-2 h-4 w-4 text-muted-foreground" />
-                  {employee.email}
-                </div>
-              </TableCell>
-              <TableCell>
-                <div className="flex items-center text-sm">
-                  <Phone className="mr-2 h-4 w-4 text-muted-foreground" />
-                  {employee.mobile_number}
-                </div>
-              </TableCell>
-              <TableCell>
-                <div className="flex items-center text-sm">
-                  <Calendar className="mr-2 h-4 w-4 text-muted-foreground" />
-                  {formatDate(employee.date_of_joining)}
-                </div>
-              </TableCell>
-              <TableCell>
-                {employee.team_project_lead ? (
-                  <div className="flex items-center text-sm">
-                    <User className="mr-2 h-4 w-4 text-muted-foreground" />
-                    {employee.team_project_lead}
-                  </div>
-                ) : (
-                  <span className="text-muted-foreground text-sm">-</span>
-                )}
-              </TableCell>
+              <TableCell>{employee.team_project_lead || '-'}</TableCell>
               <TableCell>
                 {employee.project ? (
-                  <div className="flex items-center text-sm">
-                    <Briefcase className="mr-2 h-4 w-4 text-muted-foreground" />
-                    {employee.project}
-                  </div>
+                  <Badge variant="outline">{employee.project}</Badge>
                 ) : (
-                  <span className="text-muted-foreground text-sm">-</span>
+                  '-'
                 )}
               </TableCell>
               <TableCell>
                 {employee.technology ? (
-                  <div className="flex items-center">
-                    <Code className="mr-2 h-4 w-4 text-muted-foreground" />
-                    <Badge variant="secondary" className="text-xs">
-                      {employee.technology}
-                    </Badge>
-                  </div>
+                  <Badge variant="secondary">{employee.technology}</Badge>
                 ) : (
-                  <span className="text-muted-foreground text-sm">-</span>
+                  '-'
                 )}
               </TableCell>
               <TableCell>
                 {employee.skill ? (
-                  <div className="flex items-center">
-                    <Trophy className="mr-2 h-4 w-4 text-muted-foreground" />
-                    <Badge variant="secondary" className="text-xs">
-                      {employee.skill}
-                    </Badge>
-                  </div>
+                  <Badge variant="default">{employee.skill}</Badge>
                 ) : (
-                  <span className="text-muted-foreground text-sm">-</span>
+                  '-'
                 )}
               </TableCell>
-              <TableCell className="max-w-[200px]">
-                {employee.comments ? (
-                  <div className="text-sm text-muted-foreground truncate" title={employee.comments}>
-                    {employee.comments}
-                  </div>
-                ) : (
-                  <span className="text-muted-foreground text-sm">-</span>
-                )}
+              <TableCell className="max-w-xs truncate">
+                {employee.comments || '-'}
               </TableCell>
             </TableRow>
           ))}
@@ -163,4 +105,4 @@ export function EmployeeTable({ employees, isLoading }: EmployeeTableProps) {
       </Table>
     </div>
   );
-}
+};
