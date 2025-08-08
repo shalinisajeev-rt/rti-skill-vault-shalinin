@@ -1,4 +1,3 @@
-
 import React from "react";
 import {
   Table,
@@ -23,7 +22,7 @@ interface Employee {
   email: string;
   mobile_number: string;
   role?: string;
-  project_lead?: string;
+  team_project_lead?: string;
   project?: string;
   technology?: string;
   skill?: string;
@@ -137,7 +136,7 @@ export const EmployeeTable = ({
                 </TableCell>
               )}
               {columnVisibility.projectLead && (
-                <TableCell>{employee.project_lead || '-'}</TableCell>
+                <TableCell>{employee.team_project_lead || '-'}</TableCell>
               )}
               {columnVisibility.project && (
                 <TableCell>

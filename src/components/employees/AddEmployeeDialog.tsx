@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -69,7 +68,7 @@ interface Employee {
   email: string;
   mobile_number: string;
   role?: string;
-  project_lead?: string;
+  team_project_lead?: string;
   project?: string;
   technology?: string;
   skill?: string;
@@ -149,7 +148,7 @@ export function AddEmployeeDialog({
         email: editEmployee.email,
         mobileNumber: editEmployee.mobile_number,
         role: editEmployee.role || "",
-        projectLead: editEmployee.project_lead || "",
+        projectLead: editEmployee.team_project_lead || "",
         project: editEmployee.project || "",
         technology: editEmployee.technology || "",
         skill: editEmployee.skill || "",
