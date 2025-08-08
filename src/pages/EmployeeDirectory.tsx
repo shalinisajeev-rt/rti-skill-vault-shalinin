@@ -18,7 +18,7 @@ interface Employee {
   email: string;
   mobile_number: string;
   role?: string;
-  team_project_lead?: string;
+  project_lead?: string;
   project?: string;
   technology?: string;
   skill?: string;
@@ -117,7 +117,7 @@ const EmployeeDirectory = () => {
           email: newEmployeeData.email,
           mobile_number: newEmployeeData.mobileNumber,
           role: newEmployeeData.role || null,
-          team_project_lead: newEmployeeData.teamProjectLead || null,
+          project_lead: newEmployeeData.projectLead || null,
           project: newEmployeeData.project || null,
           technology: newEmployeeData.technology || null,
           skill: newEmployeeData.skill || null,
@@ -162,7 +162,7 @@ const EmployeeDirectory = () => {
           email: updatedEmployeeData.email,
           mobile_number: updatedEmployeeData.mobileNumber,
           role: updatedEmployeeData.role || null,
-          team_project_lead: updatedEmployeeData.teamProjectLead || null,
+          project_lead: updatedEmployeeData.projectLead || null,
           project: updatedEmployeeData.project || null,
           technology: updatedEmployeeData.technology || null,
           skill: updatedEmployeeData.skill || null,

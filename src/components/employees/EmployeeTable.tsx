@@ -1,4 +1,3 @@
-
 import React from "react";
 import {
   Table,
@@ -22,7 +21,7 @@ interface Employee {
   email: string;
   mobile_number: string;
   role?: string;
-  team_project_lead?: string;
+  project_lead?: string;
   project?: string;
   technology?: string;
   skill?: string;
@@ -90,7 +89,7 @@ export const EmployeeTable = ({
             <TableHead>Mobile</TableHead>
             <TableHead>Role</TableHead>
             <TableHead>Date of Joining</TableHead>
-            <TableHead>Team Lead</TableHead>
+            <TableHead>Project Lead</TableHead>
             <TableHead>Project</TableHead>
             <TableHead>Technology</TableHead>
             <TableHead>Skills</TableHead>
@@ -121,7 +120,7 @@ export const EmployeeTable = ({
               <TableCell>
                 {format(new Date(employee.date_of_joining), 'MMM dd, yyyy')}
               </TableCell>
-              <TableCell>{employee.team_project_lead || '-'}</TableCell>
+              <TableCell>{employee.project_lead || '-'}</TableCell>
               <TableCell>
                 {employee.project ? (
                   <Badge variant="outline">{employee.project}</Badge>

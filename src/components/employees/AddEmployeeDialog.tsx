@@ -52,7 +52,7 @@ const formSchema = z.object({
     .string()
     .regex(/^\d{10}$/, "Mobile number must be exactly 10 digits"),
   role: z.string().min(1, "Role is required"),
-  teamProjectLead: z.string().optional(),
+  projectLead: z.string().optional(),
   project: z.string().optional(),
   technology: z.string().optional(),
   skill: z.string().optional(),
@@ -69,7 +69,7 @@ interface Employee {
   email: string;
   mobile_number: string;
   role?: string;
-  team_project_lead?: string;
+  project_lead?: string;
   project?: string;
   technology?: string;
   skill?: string;
@@ -131,7 +131,7 @@ export function AddEmployeeDialog({
       email: "",
       mobileNumber: "",
       role: "",
-      teamProjectLead: "",
+      projectLead: "",
       project: "",
       technology: "",
       skill: "",
@@ -149,7 +149,7 @@ export function AddEmployeeDialog({
         email: editEmployee.email,
         mobileNumber: editEmployee.mobile_number,
         role: editEmployee.role || "",
-        teamProjectLead: editEmployee.team_project_lead || "",
+        projectLead: editEmployee.project_lead || "",
         project: editEmployee.project || "",
         technology: editEmployee.technology || "",
         skill: editEmployee.skill || "",
@@ -162,7 +162,7 @@ export function AddEmployeeDialog({
         email: "",
         mobileNumber: "",
         role: "",
-        teamProjectLead: "",
+        projectLead: "",
         project: "",
         technology: "",
         skill: "",
@@ -345,10 +345,10 @@ export function AddEmployeeDialog({
 
               <FormField
                 control={form.control}
-                name="teamProjectLead"
+                name="projectLead"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Team/Project Lead</FormLabel>
+                    <FormLabel>Project Lead</FormLabel>
                     <FormControl>
                       <Input placeholder="Lead Name" {...field} />
                     </FormControl>
