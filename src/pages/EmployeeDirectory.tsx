@@ -3,9 +3,10 @@ import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Search, Plus } from "lucide-react";
+import { Search, Plus, Settings } from "lucide-react";
 import { AddEmployeeDialog } from "@/components/employees/AddEmployeeDialog";
 import { DeleteEmployeeDialog } from "@/components/employees/DeleteEmployeeDialog";
+import { CustomizeViewDialog, ColumnVisibility } from "@/components/employees/CustomizeViewDialog";
 import { EmployeeTable } from "@/components/employees/EmployeeTable";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -30,11 +31,25 @@ const EmployeeDirectory = () => {
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [isCustomizeViewOpen, setIsCustomizeViewOpen] = useState(false);
   const [editEmployee, setEditEmployee] = useState<Employee | null>(null);
   const [employeeToDelete, setEmployeeToDelete] = useState<Employee | null>(null);
   const [selectedEmployees, setSelectedEmployees] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [columnVisibility, setColumnVisibility] = useState<ColumnVisibility>({
+    employeeId: true,
+    employeeName: true,
+    email: true,
+    mobile: true,
+    role: true,
+    dateOfJoining: true,
+    projectLead: true,
+    project: true,
+    technology: true,
+    skills: true,
+    comments: true,
+  });
   const { toast } = useToast();
 
   // Fetch employees from Supabase
@@ -280,10 +295,19 @@ const EmployeeDirectory = () => {
             Manage and view all employees in your organization.
           </p>
         </div>
-        <Button onClick={() => setIsAddDialogOpen(true)}>
-          <Plus className="mr-2 h-4 w-4" />
-          Add Employee
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button 
+            variant="outline" 
+            onClick={() => setIsCustomizeViewOpen(true)}
+          >
+            <Settings className="mr-2 h-4 w-4" />
+            Customize View
+          </Button>
+          <Button onClick={() => setIsAddDialogOpen(true)}>
+            <Plus className="mr-2 h-4 w-4" />
+            Add Employee
+          </Button>
+        </div>
       </div>
 
       <div className="flex items-center justify-between">
@@ -318,6 +342,7 @@ const EmployeeDirectory = () => {
             onSelectAll={handleSelectAll}
             onEditEmployee={handleEditEmployee}
             onDeleteEmployee={handleDeleteEmployeeClick}
+            columnVisibility={columnVisibility}
           />
         </CardContent>
       </Card>
@@ -336,6 +361,13 @@ const EmployeeDirectory = () => {
         onOpenChange={setIsDeleteDialogOpen}
         onConfirm={handleDeleteEmployee}
         isDeleting={isDeleting}
+      />
+
+      <CustomizeViewDialog
+        open={isCustomizeViewOpen}
+        onOpenChange={setIsCustomizeViewOpen}
+        columnVisibility={columnVisibility}
+        onColumnVisibilityChange={setColumnVisibility}
       />
     </div>
   );

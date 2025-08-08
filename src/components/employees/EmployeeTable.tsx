@@ -1,3 +1,4 @@
+
 import React from "react";
 import {
   Table,
@@ -12,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { format } from "date-fns";
 import { Edit, Trash2 } from "lucide-react";
+import { ColumnVisibility } from "./CustomizeViewDialog";
 
 interface Employee {
   id: string;
@@ -36,6 +38,7 @@ interface EmployeeTableProps {
   onSelectAll: () => void;
   onEditEmployee: (employee: Employee) => void;
   onDeleteEmployee: (employee: Employee) => void;
+  columnVisibility: ColumnVisibility;
 }
 
 export const EmployeeTable = ({ 
@@ -45,7 +48,8 @@ export const EmployeeTable = ({
   onEmployeeSelect,
   onSelectAll,
   onEditEmployee,
-  onDeleteEmployee
+  onDeleteEmployee,
+  columnVisibility
 }: EmployeeTableProps) => {
   if (isLoading) {
     return (
@@ -83,17 +87,17 @@ export const EmployeeTable = ({
                 onCheckedChange={onSelectAll}
               />
             </TableHead>
-            <TableHead>Employee ID</TableHead>
-            <TableHead>Name</TableHead>
-            <TableHead>Email</TableHead>
-            <TableHead>Mobile</TableHead>
-            <TableHead>Role</TableHead>
-            <TableHead>Date of Joining</TableHead>
-            <TableHead>Project Lead</TableHead>
-            <TableHead>Project</TableHead>
-            <TableHead>Technology</TableHead>
-            <TableHead>Skills</TableHead>
-            <TableHead>Comments</TableHead>
+            {columnVisibility.employeeId && <TableHead>Employee ID</TableHead>}
+            {columnVisibility.employeeName && <TableHead>Name</TableHead>}
+            {columnVisibility.email && <TableHead>Email</TableHead>}
+            {columnVisibility.mobile && <TableHead>Mobile</TableHead>}
+            {columnVisibility.role && <TableHead>Role</TableHead>}
+            {columnVisibility.dateOfJoining && <TableHead>Date of Joining</TableHead>}
+            {columnVisibility.projectLead && <TableHead>Project Lead</TableHead>}
+            {columnVisibility.project && <TableHead>Project</TableHead>}
+            {columnVisibility.technology && <TableHead>Technology</TableHead>}
+            {columnVisibility.skills && <TableHead>Skills</TableHead>}
+            {columnVisibility.comments && <TableHead>Comments</TableHead>}
             <TableHead className="w-32">Actions</TableHead>
           </TableRow>
         </TableHeader>
@@ -106,45 +110,67 @@ export const EmployeeTable = ({
                   onCheckedChange={() => onEmployeeSelect(employee.id)}
                 />
               </TableCell>
-              <TableCell className="font-medium">{employee.employee_id}</TableCell>
-              <TableCell>{employee.employee_name}</TableCell>
-              <TableCell>{employee.email}</TableCell>
-              <TableCell>{employee.mobile_number}</TableCell>
-              <TableCell>
-                {employee.role ? (
-                  <Badge variant="outline">{employee.role}</Badge>
-                ) : (
-                  '-'
-                )}
-              </TableCell>
-              <TableCell>
-                {format(new Date(employee.date_of_joining), 'MMM dd, yyyy')}
-              </TableCell>
-              <TableCell>{employee.project_lead || '-'}</TableCell>
-              <TableCell>
-                {employee.project ? (
-                  <Badge variant="outline">{employee.project}</Badge>
-                ) : (
-                  '-'
-                )}
-              </TableCell>
-              <TableCell>
-                {employee.technology ? (
-                  <Badge variant="secondary">{employee.technology}</Badge>
-                ) : (
-                  '-'
-                )}
-              </TableCell>
-              <TableCell>
-                {employee.skill ? (
-                  <Badge variant="default">{employee.skill}</Badge>
-                ) : (
-                  '-'
-                )}
-              </TableCell>
-              <TableCell className="max-w-xs truncate">
-                {employee.comments || '-'}
-              </TableCell>
+              {columnVisibility.employeeId && (
+                <TableCell className="font-medium">{employee.employee_id}</TableCell>
+              )}
+              {columnVisibility.employeeName && (
+                <TableCell>{employee.employee_name}</TableCell>
+              )}
+              {columnVisibility.email && (
+                <TableCell>{employee.email}</TableCell>
+              )}
+              {columnVisibility.mobile && (
+                <TableCell>{employee.mobile_number}</TableCell>
+              )}
+              {columnVisibility.role && (
+                <TableCell>
+                  {employee.role ? (
+                    <Badge variant="outline">{employee.role}</Badge>
+                  ) : (
+                    '-'
+                  )}
+                </TableCell>
+              )}
+              {columnVisibility.dateOfJoining && (
+                <TableCell>
+                  {format(new Date(employee.date_of_joining), 'MMM dd, yyyy')}
+                </TableCell>
+              )}
+              {columnVisibility.projectLead && (
+                <TableCell>{employee.project_lead || '-'}</TableCell>
+              )}
+              {columnVisibility.project && (
+                <TableCell>
+                  {employee.project ? (
+                    <Badge variant="outline">{employee.project}</Badge>
+                  ) : (
+                    '-'
+                  )}
+                </TableCell>
+              )}
+              {columnVisibility.technology && (
+                <TableCell>
+                  {employee.technology ? (
+                    <Badge variant="secondary">{employee.technology}</Badge>
+                  ) : (
+                    '-'
+                  )}
+                </TableCell>
+              )}
+              {columnVisibility.skills && (
+                <TableCell>
+                  {employee.skill ? (
+                    <Badge variant="default">{employee.skill}</Badge>
+                  ) : (
+                    '-'
+                  )}
+                </TableCell>
+              )}
+              {columnVisibility.comments && (
+                <TableCell className="max-w-xs truncate">
+                  {employee.comments || '-'}
+                </TableCell>
+              )}
               <TableCell>
                 <div className="flex items-center gap-2">
                   <Button
