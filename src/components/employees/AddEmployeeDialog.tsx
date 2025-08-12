@@ -153,7 +153,7 @@ export function AddEmployeeDialog({ open, onOpenChange, onAddEmployee }: AddEmpl
                   <FormItem>
                     <FormLabel>Employee ID *</FormLabel>
                     <FormControl>
-                      <Input placeholder="EMP001" {...field} />
+                      <Input placeholder="RT0001" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
